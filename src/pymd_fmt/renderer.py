@@ -58,31 +58,22 @@ def _escape(text: str) -> str:
 def _render_blockquote_body(lines: list[str]) -> str:
     """Assemble the inner HTML of a blockquote from its content lines.
 
-    Headings (``### ...``) inside the quote become real heading elements, and
-    blank lines separate runs of text. Consecutive text lines are joined with
-    ``<br>`` to match the paragraph handling used elsewhere.
+    Headings (``### ...``) inside the quote become real heading elements,
+    blank lines are dropped, and every other line is wrapped in its own
+    ``<p>`` element.
     """
     parts: list[str] = []
-    run: list[str] = []
-
-    def flush_run() -> None:
-        if run:
-            parts.append("<br>\n".join(run))
-            run.clear()
 
     for line in lines:
         if line.strip() == "":
-            flush_run()
             continue
         heading = _HEADING_RE.match(line)
         if heading:
-            flush_run()
             level = len(heading.group(1))
             parts.append(f"<h{level}>{heading.group(2).strip()}</h{level}>")
             continue
-        run.append(line)
+        parts.append(f"<p>{line}</p>")
 
-    flush_run()
     return "\n".join(parts)
 
 

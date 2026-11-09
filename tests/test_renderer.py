@@ -87,27 +87,27 @@ def test_nested_list():
 
 
 def test_blockquote():
-    assert render("> quoted") == "<blockquote>\nquoted\n</blockquote>"
+    assert render("> quoted") == "<blockquote>\n<p>quoted</p>\n</blockquote>"
 
 
 def test_blockquote_multiline():
     out = render("> one\n> two")
-    assert out == "<blockquote>\none<br>\ntwo\n</blockquote>"
+    assert out == "<blockquote>\n<p>one</p>\n<p>two</p>\n</blockquote>"
 
 
 @pytest.mark.parametrize("kind", ["prompt-danger", "prompt-info", "prompt-tip", "prompt-warning"])
 def test_prompt_callout(kind):
     out = render("> Meu texto bla bla bla\n{: ." + kind + " }")
-    assert out == f'<blockquote class="{kind}">\nMeu texto bla bla bla\n</blockquote>'
+    assert out == f'<blockquote class="{kind}">\n<p>Meu texto bla bla bla</p>\n</blockquote>'
 
 
 def test_prompt_callout_multiline():
     out = render("> line one\n> line two\n{: .prompt-tip }")
-    assert out == '<blockquote class="prompt-tip">\nline one<br>\nline two\n</blockquote>'
+    assert out == '<blockquote class="prompt-tip">\n<p>line one</p>\n<p>line two</p>\n</blockquote>'
 
 
 def test_plain_blockquote_without_attr_has_no_class():
-    assert render("> plain") == "<blockquote>\nplain\n</blockquote>"
+    assert render("> plain") == "<blockquote>\n<p>plain</p>\n</blockquote>"
 
 
 def test_heading_inside_blockquote_becomes_heading():
@@ -115,14 +115,14 @@ def test_heading_inside_blockquote_becomes_heading():
     assert out == (
         '<blockquote class="prompt-warning">\n'
         "<h3>Título</h3>\n"
-        "corpo do aviso\n"
+        "<p>corpo do aviso</p>\n"
         "</blockquote>"
     )
 
 
-def test_blockquote_blank_lines_separate_runs():
+def test_blockquote_blank_lines_are_dropped():
     out = render("> um\n> dois\n> \n> três")
-    assert out == "<blockquote>\num<br>\ndois\ntrês\n</blockquote>"
+    assert out == "<blockquote>\n<p>um</p>\n<p>dois</p>\n<p>três</p>\n</blockquote>"
 
 
 def test_stray_attribute_line_is_dropped():
@@ -132,8 +132,8 @@ def test_stray_attribute_line_is_dropped():
 def test_consecutive_callouts():
     out = render("> a\n{: .prompt-info }\n\n> b\n{: .prompt-danger }")
     assert out == (
-        '<blockquote class="prompt-info">\na\n</blockquote>\n'
-        '<blockquote class="prompt-danger">\nb\n</blockquote>'
+        '<blockquote class="prompt-info">\n<p>a</p>\n</blockquote>\n'
+        '<blockquote class="prompt-danger">\n<p>b</p>\n</blockquote>'
     )
 
 
@@ -143,4 +143,4 @@ def test_mixed_document():
     assert "<h1>Title</h1>" in out
     assert "<strong>para</strong>" in out
     assert "<ul>\n<li>one</li>\n<li>two</li>\n</ul>" in out
-    assert "<blockquote>\nnote\n</blockquote>" in out
+    assert "<blockquote>\n<p>note</p>\n</blockquote>" in out
