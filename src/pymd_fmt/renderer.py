@@ -55,6 +55,37 @@ def _escape(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _render_blockquote_body(lines: list[str]) -> str:
+    """Assemble the inner HTML of a blockquote from its content lines.
+
+    Headings (``### ...``) inside the quote become real heading elements, and
+    blank lines separate runs of text. Consecutive text lines are joined with
+    ``<br>`` to match the paragraph handling used elsewhere.
+    """
+    parts: list[str] = []
+    run: list[str] = []
+
+    def flush_run() -> None:
+        if run:
+            parts.append("<br>\n".join(run))
+            run.clear()
+
+    for line in lines:
+        if line.strip() == "":
+            flush_run()
+            continue
+        heading = _HEADING_RE.match(line)
+        if heading:
+            flush_run()
+            level = len(heading.group(1))
+            parts.append(f"<h{level}>{heading.group(2).strip()}</h{level}>")
+            continue
+        run.append(line)
+
+    flush_run()
+    return "\n".join(parts)
+
+
 class MarkdownRenderer:
     """Render Markdown text into an HTML fragment.
 
@@ -125,7 +156,8 @@ class MarkdownRenderer:
         def flush_quote(css_class: str | None = None) -> None:
             if quote:
                 attr = f' class="{css_class}"' if css_class else ""
-                out.append(f"<blockquote{attr}>\n" + "<br>\n".join(quote) + "\n</blockquote>")
+                body = _render_blockquote_body(quote)
+                out.append(f"<blockquote{attr}>\n{body}\n</blockquote>")
                 quote.clear()
 
         def close_all_lists() -> None:

@@ -110,6 +110,21 @@ def test_plain_blockquote_without_attr_has_no_class():
     assert render("> plain") == "<blockquote>\nplain\n</blockquote>"
 
 
+def test_heading_inside_blockquote_becomes_heading():
+    out = render("> ### Título\n> \n> corpo do aviso\n{: .prompt-warning }")
+    assert out == (
+        '<blockquote class="prompt-warning">\n'
+        "<h3>Título</h3>\n"
+        "corpo do aviso\n"
+        "</blockquote>"
+    )
+
+
+def test_blockquote_blank_lines_separate_runs():
+    out = render("> um\n> dois\n> \n> três")
+    assert out == "<blockquote>\num<br>\ndois\ntrês\n</blockquote>"
+
+
 def test_stray_attribute_line_is_dropped():
     assert render("just text\n{: .prompt-tip }") == "<p>just text</p>"
 
