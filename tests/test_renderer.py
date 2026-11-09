@@ -113,10 +113,7 @@ def test_plain_blockquote_without_attr_has_no_class():
 def test_heading_inside_blockquote_becomes_heading():
     out = render("> ### Título\n> \n> corpo do aviso\n{: .prompt-warning }")
     assert out == (
-        '<blockquote class="prompt-warning">\n'
-        "<h3>Título</h3>\n"
-        "<p>corpo do aviso</p>\n"
-        "</blockquote>"
+        '<blockquote class="prompt-warning">\n<h3>Título</h3>\n<p>corpo do aviso</p>\n</blockquote>'
     )
 
 
